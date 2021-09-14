@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "noUnusedLocals": true,
     "sourceMap": true,
     "outDir": "dist",
     "strict": true,
