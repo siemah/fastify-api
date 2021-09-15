@@ -6,7 +6,8 @@
   "private": false,
   "dependencies": {
     "@prisma/client": "3.0.2",
-    "fastify": "^3.21.0"
+    "fastify": "^3.21.0",
+    "fastify-plugin": "^3.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.15.5",
@@ -32,7 +33,7 @@
   "scripts": {
     "test:dev": "jest --ci --watch --coverage=true",
     "test:ci": "jest --ci --coverage=true",
-    "lintfix": "eslint src/app.ts --fix --cache",
+    "lintfix": "eslint src/ --fix --cache",
     "format": "prettier --write src"
   },
   "husky": {
