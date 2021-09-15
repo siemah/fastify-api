@@ -24,10 +24,9 @@ export const errorHandler = (
 			const errorPath: string =
 				error.dataPath.length !== 0
 					? error.dataPath
-					: error.params?.missingProperty ||
-					  // @ts-expect-error this type not included in fastify
+					: // @ts-expect-error this type not included in fastify
+					  error.params?.missingProperty ||
 					  error.params.errors[0].params.missingProperty ||
-					  // @ts-expect-error this type not included in fastify
 					  error.params.errors[0].dataPath;
 			const prop = errorPath === "" ? "global" : errorPath.replace(/[/.]/, "");
 
