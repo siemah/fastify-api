@@ -38,7 +38,7 @@
     "test:ci": "jest --ci --coverage=true",
     "lintfix": "eslint src/ --fix --cache",
     "format": "prettier --write src",
-    "dev": "nodemon src/server.ts",
+    "dev": "nodemon",
     "build": "tsc -p ."
   },
   "husky": {
