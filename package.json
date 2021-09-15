@@ -6,6 +6,8 @@
   "private": false,
   "dependencies": {
     "@prisma/client": "3.0.2",
+    "@sinclair/typebox": "^0.20.5",
+    "ajv-errors": "^1.0.1",
     "fastify": "^3.21.0",
     "fastify-plugin": "^3.0.0"
   },
@@ -25,14 +27,15 @@
     "husky": "^7.0.2",
     "jest": "^27.1.1",
     "lint-staged": "^11.1.2",
+    "nodemon": "^2.0.12",
     "prettier": "^2.4.0",
     "prisma": "3.0.2",
     "ts-node": "^10.2.1",
     "typescript": "^4.4.3"
   },
   "scripts": {
-    "test:dev": "jest --ci --watch --coverage=true",
-    "test:ci": "jest --ci --coverage=true",
+    "test:dev": "jest --ci --watch --coverage=true --modulePaths=src",
+    "test:ci": "jest --ci --coverage=true --modulePaths=src",
     "lintfix": "eslint src/ --fix --cache",
     "format": "prettier --write src"
   },
