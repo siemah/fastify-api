@@ -3,10 +3,11 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "private": false,
   "dependencies": {
     "@prisma/client": "3.0.2",
     "fastify": "^3.21.0",
-    "husky": "^7.0.2"
+    "fastify-plugin": "^3.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.15.5",
@@ -21,7 +22,9 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-jest": "^24.4.0",
     "eslint-plugin-prettier": "^4.0.0",
+    "husky": "^7.0.2",
     "jest": "^27.1.1",
+    "lint-staged": "^11.1.2",
     "prettier": "^2.4.0",
     "prisma": "3.0.2",
     "ts-node": "^10.2.1",
@@ -30,6 +33,17 @@
   "scripts": {
     "test:dev": "jest --ci --watch --coverage=true",
     "test:ci": "jest --ci --coverage=true",
-    "lintfix": "eslint src --fix --cache"
+    "lintfix": "eslint src/ --fix --cache",
+    "format": "prettier --write src"
+  },
+  "husky": {
+    "pre-commit": "lint-staged",
+    "pre-push": "yarn run test:ci"
+  },
+  "lint-staged": {
+    "src/**/*.{ts,js,json}": [
+      "yarn run lintfix",
+      "yarn run format"
+    ]
   }
 }
