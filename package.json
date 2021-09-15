@@ -34,10 +34,12 @@
     "typescript": "^4.4.3"
   },
   "scripts": {
-    "test:dev": "jest --ci --watch --coverage=true --modulePaths=src",
-    "test:ci": "jest --ci --coverage=true --modulePaths=src",
+    "test:dev": "jest --ci --watch --coverage=true",
+    "test:ci": "jest --ci --coverage=true",
     "lintfix": "eslint src/ --fix --cache",
-    "format": "prettier --write src"
+    "format": "prettier --write src",
+    "dev": "nodemon src/server.ts",
+    "build": "tsc -p ."
   },
   "husky": {
     "pre-commit": "lint-staged",
