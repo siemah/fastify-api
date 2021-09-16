@@ -3,6 +3,7 @@ import { TSignUpRoute } from "../../types/users";
 import { HTTPResponse } from "../../types/server";
 import { errorHandler } from "../../tools/fastify";
 import { SignUpSchema, SignUpResponse } from "../../config/schemas/users";
+import UserProfile from "../../controllers/users";
 
 const usersRoutes: FastifyPluginAsync = async server => {
 	server.post<TSignUpRoute>(
@@ -17,38 +18,19 @@ const usersRoutes: FastifyPluginAsync = async server => {
 			errorHandler,
 		},
 		async function (req, rep) {
-			const { body: data } = req;
 			let response: HTTPResponse<any>;
-			let status = 201;
+			let status;
 
 			try {
-				await server.prisma.user.create({
-					data: {
-						email: data.email,
-						fullname: data.fullname,
-						password: data.password,
-						profile: {
-							create: {
-								bio: data.bio,
-							},
-						},
-					},
-					include: {
-						profile: true,
-					},
-				});
-				response = {
-					code: "success",
-					message: "You have registred with success",
-				};
+				const userProfile = new UserProfile(server.prisma);
+				const { status: createStatus, ...createResponse } =
+					await userProfile.createUser(req.body);
+				response = createResponse;
+				status = createStatus;
 			} catch (error) {
 				status = 400;
 				response = {
 					code: "failed",
-					errors: {
-						global:
-							"Something went wrong, please try again check if your are not registred before!",
-					},
 				};
 			}
 
