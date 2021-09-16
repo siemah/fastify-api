@@ -13,6 +13,7 @@ const usersRoutes: FastifyPluginAsync = async server => {
 				body: SignUpSchema,
 				response: {
 					400: SignUpResponse,
+					201: SignUpResponse,
 				},
 			},
 			errorHandler,
