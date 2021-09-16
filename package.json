@@ -47,8 +47,8 @@
   },
   "lint-staged": {
     "src/**/*.{ts,js,json}": [
-      "yarn run lintfix",
-      "yarn run format"
+      "yarn run format",
+      "yarn run lintfix"
     ]
   }
 }
