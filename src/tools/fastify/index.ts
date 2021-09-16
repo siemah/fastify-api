@@ -1,5 +1,46 @@
-import { FastifyReply, FastifyRequest, FastifyError } from "fastify";
+import {
+	FastifyReply,
+	FastifyRequest,
+	FastifyError,
+	ValidationResult,
+} from "fastify";
 import { HTTPResponse } from "../../types/server";
+
+/**
+ * Get error message and the field(prop) caused it from fastify validation
+ * @param error list of errors returned by fastify due to request validation
+ * @returns error message with its field name
+ */
+const getErrorMessageFromFastifyValidation = (error: ValidationResult) => {
+	let errorPath, prop;
+
+	try {
+		if (error.dataPath !== "") {
+			errorPath = error.dataPath;
+		} else if (error.params?.missingProperty) {
+			errorPath = error.params?.missingProperty;
+			// @ts-expect-error this type not included in fastify
+		} else if (error.params.errors[0].params.missingProperty) {
+			// @ts-expect-error this type not included in fastify
+			errorPath = error.params.errors[0].params.missingProperty;
+			// @ts-expect-error this type not included in fastify
+		} else if (error.params.errors[0].dataPath) {
+			// @ts-expect-error this type not included in fastify
+			errorPath = error.params.errors[0].dataPath;
+		} else {
+			errorPath = "";
+		}
+
+		prop = errorPath === "" ? "global" : errorPath.replace(/[/.]/, "");
+	} catch (e) {
+		prop = "global";
+		error.message = "Sorry abou this, please try again";
+	}
+
+	return {
+		[prop]: error.message,
+	};
+};
 
 /**
  * Handle errors catch by fastify
@@ -11,7 +52,7 @@ export const errorHandler = (
 	error: FastifyError,
 	request: FastifyRequest,
 	reply: FastifyReply,
-) => {
+): void => {
 	const { validation } = error;
 	const response: HTTPResponse = {
 		code: "failed",
@@ -21,18 +62,10 @@ export const errorHandler = (
 	if (validation !== undefined) {
 		response.errors = {};
 		validation.forEach(error => {
-			const errorPath: string =
-				error.dataPath.length !== 0
-					? error.dataPath
-					: // @ts-expect-error this type not included in fastify
-					  error.params?.missingProperty ||
-					  error.params.errors[0].params.missingProperty ||
-					  error.params.errors[0].dataPath;
-			const prop = errorPath === "" ? "global" : errorPath.replace(/[/.]/, "");
-
+			const errorMessage = getErrorMessageFromFastifyValidation(error);
 			response.errors = {
 				...response.errors,
-				[prop]: error.message,
+				...errorMessage,
 			};
 		});
 	} else {
