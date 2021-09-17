@@ -27,7 +27,6 @@ const getErrorMessageFromFastifyValidation = (error: ValidationResult) => {
 		} else if (error.params.errors[0].params?.missingProperty) {
 			// @ts-expect-error this type not included in fastify
 			errorPath = error.params.errors[0].params.missingProperty;
-			// @ts-expect-error this type not included in fastify
 		} else {
 			errorPath = "";
 		}

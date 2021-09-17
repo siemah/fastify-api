@@ -9,6 +9,8 @@
     "@sinclair/typebox": "^0.20.5",
     "ajv-errors": "^1.0.1",
     "fastify": "^3.21.0",
+    "fastify-cookie": "^5.3.1",
+    "fastify-jwt": "^3.1.0",
     "fastify-plugin": "^3.0.0"
   },
   "devDependencies": {
