@@ -1,6 +1,9 @@
-import { PrismaClient } from ".prisma/client";
+import { PrismaClient, User } from ".prisma/client";
 import { HTTPResponse } from "../../types/server";
 
+type HTTPResponseU = (HTTPResponse | HTTPResponse<Record<string, any>>) & {
+	status: number;
+};
 export default class UserProfile {
 	protected prisma: PrismaClient;
 
@@ -13,7 +16,7 @@ export default class UserProfile {
 	 * @param data user details
 	 * @returns response schema
 	 */
-	async createUser(data: any): Promise<HTTPResponse<any> & { status: number }> {
+	async createUser(data: any): Promise<HTTPResponseU> {
 		let response: HTTPResponse<any>;
 		let status = 201;
 
@@ -44,6 +47,40 @@ export default class UserProfile {
 				code: "failed",
 				errors: {
 					global: "Please check if your are not registred before then try!",
+				},
+			};
+		}
+
+		return {
+			status,
+			...response,
+		};
+	}
+
+	/**
+	 * Retrieve user details by his email/id
+	 * @param data object with email/id of user
+	 * @returns http response schema of fetched user
+	 */
+	async getUser(data: Partial<User>): Promise<HTTPResponseU> {
+		let response: HTTPResponse<any>;
+		let status = 200;
+
+		try {
+			const userData = await this.prisma.user.findUnique({
+				where: data,
+			});
+
+			response = {
+				code: "success",
+				data: userData,
+			};
+		} catch (error) {
+			status = 400;
+			response = {
+				code: "failed",
+				errors: {
+					global: "Please try again!",
 				},
 			};
 		}
