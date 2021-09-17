@@ -20,13 +20,14 @@ const getErrorMessageFromFastifyValidation = (error: ValidationResult) => {
 		} else if (error.params?.missingProperty) {
 			errorPath = error.params?.missingProperty;
 			// @ts-expect-error this type not included in fastify
-		} else if (error.params.errors[0].params.missingProperty) {
-			// @ts-expect-error this type not included in fastify
-			errorPath = error.params.errors[0].params.missingProperty;
-			// @ts-expect-error this type not included in fastify
 		} else if (error.params.errors[0].dataPath) {
 			// @ts-expect-error this type not included in fastify
 			errorPath = error.params.errors[0].dataPath;
+			// @ts-expect-error this type not included in fastify
+		} else if (error.params.errors[0].params?.missingProperty) {
+			// @ts-expect-error this type not included in fastify
+			errorPath = error.params.errors[0].params.missingProperty;
+			// @ts-expect-error this type not included in fastify
 		} else {
 			errorPath = "";
 		}
@@ -34,7 +35,7 @@ const getErrorMessageFromFastifyValidation = (error: ValidationResult) => {
 		prop = errorPath === "" ? "global" : errorPath.replace(/[/.]/, "");
 	} catch (e) {
 		prop = "global";
-		error.message = "Sorry abou this, please try again";
+		error.message = "Sorry about this, please try again";
 	}
 
 	return {
