@@ -3,6 +3,10 @@ const routesEndpoints = {
 	auth: {
 		root: authRoot,
 		signup: `${authRoot}/signup`,
+		signin: {
+			root: "/signin",
+			global: `${authRoot}/signin`,
+		},
 	},
 };
 

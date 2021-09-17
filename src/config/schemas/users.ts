@@ -27,7 +27,7 @@ export const SignUpSchema = Type.Object(
 				minLength: 10,
 				maxLength: 150,
 				errorMessage: {
-					minLength: "Bio field should contain at least a0 characters",
+					minLength: "Bio field should contain at least 10 characters",
 					maxLength: "Bio field should not contain more than 150 characters",
 					_: "Please enter a valid Bio",
 				},
@@ -60,3 +60,29 @@ export const SignUpResponse = Type.Object({
 	errors: Type.Optional(Type.Record(Type.String(), Type.String())),
 	message: Type.Optional(Type.String()),
 });
+
+export const SignInSchema = Type.Object(
+	{
+		email: Type.String({
+			format: "email",
+			errorMessage: "Please enter a valid email",
+		}),
+		password: Type.String({
+			minLength: 6,
+			errorMessage: {
+				minLength: "Password should contain at least 6 characters",
+				_: "Password is a combination of characters at least 6",
+			},
+		}),
+	},
+	{
+		additionalProperties: false,
+		errorMessage: {
+			_: "Email and password fields are required",
+			required: {
+				email: "Email field is required",
+				password: "Password field is required",
+			},
+		},
+	},
+);
