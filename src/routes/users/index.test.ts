@@ -1,13 +1,19 @@
 import { FastifyInstance } from "fastify";
+import fastifyCookie, { FastifyCookieOptions } from "fastify-cookie";
 import faker from "faker";
 import routesEndpoints from "../../config/routes/endpoints";
 import usersRoutes from ".";
 import { createFastifyServer } from "../../tools/testing";
 import { prismaMock } from "../../tools/testing/prisma/singleton";
+import {
+	fastifyCookieOptions,
+	fastifyJWTOptions,
+} from "../../config/fastify/ecosystem";
+import fastifyJWT from "fastify-jwt";
 
 describe("Users routes:", () => {
 	let server: FastifyInstance;
-	const { signup, root: authRootEndpoint } = routesEndpoints.auth;
+	const { signup, signin, root: authRootEndpoint } = routesEndpoints.auth;
 	const userData = {
 		email: faker.internet.email(),
 		password: faker.internet.password(6),
@@ -21,6 +27,11 @@ describe("Users routes:", () => {
 
 	beforeAll(async () => {
 		server = createFastifyServer();
+		await server.register(
+			fastifyCookie,
+			fastifyCookieOptions.plugin as FastifyCookieOptions,
+		);
+		await server.register(fastifyJWT, fastifyJWTOptions.plugin);
 		await server.register(usersRoutes, { prefix: authRootEndpoint });
 	});
 
@@ -89,6 +100,91 @@ describe("Users routes:", () => {
 				expect(responseBody).toHaveProperty("code", "failed");
 				expect(responseBody).toHaveProperty("errors");
 				expect(responseBody?.errors).toHaveProperty("global");
+			});
+		});
+	});
+
+	describe("handle /signin requests", () => {
+		describe("Validation", () => {
+			test("should return global error of empty payload", async () => {
+				const { statusCode, body, headers } = await server
+					.inject()
+					.post(signin.global);
+				const responseBody = JSON.parse(body);
+
+				expect(statusCode).toBe(400);
+				expect(headers).toHaveProperty(
+					"content-type",
+					"application/json; charset=utf-8",
+				);
+				expect(responseBody).toHaveProperty("errors");
+				expect(responseBody?.errors).toHaveProperty("global");
+			});
+
+			test("should send an errors", async () => {
+				const { statusCode, body, headers } = await server
+					.inject()
+					.post(signin.global)
+					.payload({});
+				const responseBody = JSON.parse(body);
+
+				expect(statusCode).toBe(400);
+				expect(headers).toHaveProperty(
+					"content-type",
+					"application/json; charset=utf-8",
+				);
+				expect(responseBody).toHaveProperty("errors");
+				expect(responseBody?.errors).toHaveProperty("email");
+				expect(responseBody?.errors).toHaveProperty("password");
+			});
+		});
+
+		describe("Database", () => {
+			test("should failed to signin because of email/password", async () => {
+				prismaMock.user.findUnique.mockResolvedValue(null);
+				server.prisma = prismaMock;
+				const { statusCode, body } = await server
+					.inject()
+					.post(signin.global)
+					.payload(userData);
+				let responseBody = JSON.parse(body);
+
+				expect(statusCode).toBe(400);
+				expect(responseBody).toHaveProperty("code", "failed");
+				expect(responseBody).toHaveProperty("errors", {
+					global: "Your credentials are not correct",
+				});
+
+				prismaMock.user.findUnique.mockResolvedValue({
+					email: userData.email,
+					password: faker.internet.password(7),
+				});
+				server.prisma = prismaMock;
+				const { statusCode2, body2 } = await server
+					.inject()
+					.post(signin.global)
+					.payload(userData);
+				responseBody = JSON.parse(body);
+				expect(responseBody).toHaveProperty("code", "failed");
+				expect(responseBody).toHaveProperty("errors", {
+					global: "Your credentials are not correct",
+				});
+			});
+
+			test("should signin with success", async () => {
+				prismaMock.user.findUnique.mockResolvedValue(userData);
+				server.prisma = prismaMock;
+				const { statusCode, body, headers } = await server
+					.inject()
+					.post(signin.global)
+					.payload(userData);
+				const responseBody = JSON.parse(body);
+
+				expect(statusCode).toBe(200);
+				expect(responseBody).toHaveProperty("code", "success");
+				expect(headers["set-cookie"]).toContain(
+					`${fastifyCookieOptions.names.auth}=`,
+				);
 			});
 		});
 	});
