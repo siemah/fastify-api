@@ -69,6 +69,7 @@ export const errorHandler = (
 			};
 		});
 	} else {
+		// todo: handle fastify core error by sending more generic message for all kind
 		response.errors = {
 			global: error.message,
 		};
