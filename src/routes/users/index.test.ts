@@ -1,6 +1,7 @@
 import { FastifyInstance } from "fastify";
 import fastifyCookie, { FastifyCookieOptions } from "fastify-cookie";
 import faker from "faker";
+import fastifyJWT from "fastify-jwt";
 import routesEndpoints from "../../config/routes/endpoints";
 import usersRoutes from ".";
 import { createFastifyServer } from "../../tools/testing";
@@ -9,7 +10,6 @@ import {
 	fastifyCookieOptions,
 	fastifyJWTOptions,
 } from "../../config/fastify/ecosystem";
-import fastifyJWT from "fastify-jwt";
 
 describe("Users routes:", () => {
 	let server: FastifyInstance;
@@ -160,15 +160,35 @@ describe("Users routes:", () => {
 					password: faker.internet.password(7),
 				});
 				server.prisma = prismaMock;
-				const { statusCode2, body2 } = await server
+				const { body: body2 } = await server
 					.inject()
 					.post(signin.global)
 					.payload(userData);
-				responseBody = JSON.parse(body);
+				responseBody = JSON.parse(body2);
 				expect(responseBody).toHaveProperty("code", "failed");
 				expect(responseBody).toHaveProperty("errors", {
 					global: "Your credentials are not correct",
 				});
+			});
+
+			test("should DB failure", async () => {
+				const errorsResopnse = {
+					code: "failed",
+					errors: {
+						global: "Please try again!",
+					},
+				};
+				prismaMock.user.findUnique.mockRejectedValue(errorsResopnse);
+				server.prisma = prismaMock;
+				const { statusCode, body } = await server
+					.inject()
+					.post(signin.global)
+					.payload(userData);
+				const responseBody = JSON.parse(body);
+
+				expect(statusCode).toBe(400);
+				expect(responseBody).toHaveProperty("code", "failed");
+				expect(responseBody).toHaveProperty("errors", errorsResopnse.errors);
 			});
 
 			test("should signin with success", async () => {
@@ -182,9 +202,35 @@ describe("Users routes:", () => {
 
 				expect(statusCode).toBe(200);
 				expect(responseBody).toHaveProperty("code", "success");
-				expect(headers["set-cookie"]).toContain(
+				expect(headers["set-cookie"]?.[0]).toContain(
 					`${fastifyCookieOptions.names.auth}=`,
 				);
+			});
+
+			test("should prevent signedin user to reach \"/signin\" or \"/signup\"", async () => {
+				prismaMock.user.findUnique.mockResolvedValue(userCreateData);
+				server.prisma = prismaMock;
+				// this get user jwt token an use it in 2nd request(line 199)
+				const { headers } = await server
+					.inject()
+					.post(signin.global)
+					.payload(userData);
+
+				const { statusCode, body } = await server
+					.inject({
+						headers: {
+							cookie: headers["set-cookie"]?.[1],
+						},
+					})
+					.post(signin.global)
+					.payload(userData);
+				const responseBody = JSON.parse(body);
+
+				expect(statusCode).toBe(403);
+				expect(responseBody).toHaveProperty("code", "failed");
+				expect(responseBody).toHaveProperty("errors", {
+					global: "You're already signed in",
+				});
 			});
 		});
 	});

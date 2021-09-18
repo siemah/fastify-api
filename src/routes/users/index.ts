@@ -9,9 +9,31 @@ import {
 } from "../../config/schemas/users";
 import UserProfile from "../../controllers/users";
 import routesEndpoints from "../../config/routes/endpoints";
-import { fastifyCookieOptions } from "../../config/fastify/ecosystem";
+import {
+	fastifyCookieOptions,
+	fastifyJWTOptions,
+} from "../../config/fastify/ecosystem";
+import { User } from ".prisma/client";
 
 const usersRoutes: FastifyPluginAsync = async server => {
+	server.addHook("onRequest", async function (req, rep) {
+		try {
+			const user = await req.jwtVerify<Pick<User, "id">>(
+				fastifyJWTOptions.jwt.verify,
+			);
+
+			if (user !== null && user?.id) {
+				rep.status(403).send({
+					code: "failed",
+					errors: {
+						global: "You're already signed in",
+					},
+				});
+			}
+		} catch (error) {
+			rep.clearCookie(fastifyCookieOptions.names.auth);
+		}
+	});
 	server.post<TSignUpRoute>(
 		"/signup",
 		{
@@ -25,21 +47,8 @@ const usersRoutes: FastifyPluginAsync = async server => {
 			errorHandler,
 		},
 		async function (req, rep) {
-			let response: HTTPResponse<any>;
-			let status;
-
-			try {
-				const userProfile = new UserProfile(server.prisma);
-				const { status: createStatus, ...createResponse } =
-					await userProfile.createUser(req.body);
-				response = createResponse;
-				status = createStatus;
-			} catch (error) {
-				status = 400;
-				response = {
-					code: "failed",
-				};
-			}
+			const userProfile = new UserProfile(server.prisma);
+			const { status, ...response } = await userProfile.createUser(req.body);
 
 			rep.status(status).send(response);
 		},
@@ -61,33 +70,26 @@ const usersRoutes: FastifyPluginAsync = async server => {
 			let status;
 			let jwtToken;
 
-			try {
-				const userProfile = new UserProfile(server.prisma);
-				const res = await userProfile.getUser({ email: req.body.email });
+			const userProfile = new UserProfile(server.prisma);
+			const res = await userProfile.getUser({ email: req.body.email });
 
-				if (res?.code === "success" && res?.data !== null) {
-					if (req.body.password === res.data?.password) {
-						status = 200;
-						response = {
-							code: "success",
-							message: "Signin with success",
-						};
-						jwtToken = server.jwt.sign(res.data as Record<string, any>);
-						rep.setCookie(
-							fastifyCookieOptions.names.auth,
-							jwtToken,
-							fastifyCookieOptions.cookie,
-						);
-					} else {
-						status = 400;
-						response = {
-							code: "failed",
-							errors: {
-								global: "Your credentials are not correct",
-							},
-						};
-					}
-				} else if (res?.code === "success") {
+			if (res?.code === "success" && res?.data !== null) {
+				if (req.body.password === res.data?.password) {
+					status = 200;
+					response = {
+						code: "success",
+						message: "Signin with success",
+					};
+					jwtToken = await rep.jwtSign(
+						{ id: res.data?.id },
+						fastifyJWTOptions.jwt.sign,
+					);
+					rep.setCookie(
+						fastifyCookieOptions.names.auth,
+						jwtToken,
+						fastifyCookieOptions.cookie,
+					);
+				} else {
 					status = 400;
 					response = {
 						code: "failed",
@@ -95,21 +97,20 @@ const usersRoutes: FastifyPluginAsync = async server => {
 							global: "Your credentials are not correct",
 						},
 					};
-					status = 400;
-				} else {
-					status = 400;
-					response = {
-						code: "failed",
-						errors: res.errors,
-					};
 				}
-			} catch (error) {
+			} else if (res?.code === "success") {
 				status = 400;
 				response = {
 					code: "failed",
 					errors: {
-						global: "Something went wrong!",
+						global: "Your credentials are not correct",
 					},
+				};
+			} else {
+				status = 400;
+				response = {
+					code: "failed",
+					errors: res.errors,
 				};
 			}
 
