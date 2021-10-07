@@ -46,21 +46,6 @@ export const SignUpSchema = Type.Object(
 	},
 );
 
-export const SignUpResponse = Type.Object({
-	code: Type.KeyOf(
-		Type.Object({
-			failed: Type.String({
-				pattern: "failed",
-			}),
-			success: Type.String({
-				pattern: "success",
-			}),
-		}),
-	),
-	errors: Type.Optional(Type.Record(Type.String(), Type.String())),
-	message: Type.Optional(Type.String()),
-});
-
 export const SignInSchema = Type.Object(
 	{
 		email: Type.String({

@@ -4,7 +4,6 @@ import { HTTPResponse } from "../../types/server";
 import { errorHandler } from "../../tools/fastify";
 import {
 	SignUpSchema,
-	SignUpResponse,
 	SignInSchema,
 } from "../../config/schemas/users";
 import UserProfile from "../../controllers/users";
@@ -14,6 +13,7 @@ import {
 	fastifyJWTOptions,
 } from "../../config/fastify/ecosystem";
 import { User } from ".prisma/client";
+import { ResponseSchemaWithErrors, ResponseSchemaWithSuccessMessage } from "../../config/schemas/shared";
 
 const usersRoutes: FastifyPluginAsync = async server => {
 	server.addHook("onRequest", async function (req, rep) {
@@ -40,8 +40,8 @@ const usersRoutes: FastifyPluginAsync = async server => {
 			schema: {
 				body: SignUpSchema,
 				response: {
-					400: SignUpResponse,
-					201: SignUpResponse,
+					400: ResponseSchemaWithErrors,
+					201: ResponseSchemaWithSuccessMessage,
 				},
 			},
 			errorHandler,
@@ -59,8 +59,8 @@ const usersRoutes: FastifyPluginAsync = async server => {
 			schema: {
 				body: SignInSchema,
 				response: {
-					400: SignUpResponse,
-					201: SignUpResponse,
+					400: ResponseSchemaWithErrors,
+					201: ResponseSchemaWithSuccessMessage,
 				},
 			},
 			errorHandler,
