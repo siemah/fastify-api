@@ -2,19 +2,22 @@ import { FastifyInstance } from "fastify";
 import fastifyCookie, { FastifyCookieOptions } from "fastify-cookie";
 import fastifyJWT from "fastify-jwt";
 import apiKeysRoutes from ".";
-import { fastifyCookieOptions, fastifyJWTOptions } from "../../config/fastify/ecosystem";
+import {
+	fastifyCookieOptions,
+	fastifyJWTOptions,
+} from "../../config/fastify/ecosystem";
 import routesEndpoints from "../../config/routes/endpoints";
 import { createFastifyServer } from "../../tools/testing";
 
-describe('API Keys routes', () => {
+describe("API Keys routes", () => {
 	let server: FastifyInstance;
 	const { create, root: apiKeyRoot } = routesEndpoints.apiKeys;
 
 	beforeAll(async () => {
 		server = createFastifyServer();
 		const routeOptions = {
-			prefix: apiKeyRoot
-		}
+			prefix: apiKeyRoot,
+		};
 		await server.register(
 			fastifyCookie,
 			fastifyCookieOptions.plugin as FastifyCookieOptions,
@@ -27,10 +30,8 @@ describe('API Keys routes', () => {
 		await server.close();
 	});
 
-	describe('Create an API Key', () => {
-
-		describe('Data validation', () => {
-
+	describe("Create an API Key", () => {
+		describe("Data validation", () => {
 			test("should return global error of empty payload", async () => {
 				const { statusCode, body, headers } = await server
 					.inject()
@@ -63,10 +64,6 @@ describe('API Keys routes', () => {
 				expect(responseBody?.errors).toHaveProperty("description");
 				expect(responseBody?.errors).toHaveProperty("domain");
 			});
-
 		});
-
 	});
-
-
 });

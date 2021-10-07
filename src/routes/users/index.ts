@@ -2,10 +2,7 @@ import { FastifyPluginAsync } from "fastify";
 import { TSignInRoute, TSignUpRoute } from "../../types/users";
 import { HTTPResponse } from "../../types/server";
 import { errorHandler } from "../../tools/fastify";
-import {
-	SignUpSchema,
-	SignInSchema,
-} from "../../config/schemas/users";
+import { SignUpSchema, SignInSchema } from "../../config/schemas/users";
 import UserProfile from "../../controllers/users";
 import routesEndpoints from "../../config/routes/endpoints";
 import {
@@ -13,7 +10,10 @@ import {
 	fastifyJWTOptions,
 } from "../../config/fastify/ecosystem";
 import { User } from ".prisma/client";
-import { ResponseSchemaWithErrors, ResponseSchemaWithSuccessMessage } from "../../config/schemas/shared";
+import {
+	ResponseSchemaWithErrors,
+	ResponseSchemaWithSuccessMessage,
+} from "../../config/schemas/shared";
 
 const usersRoutes: FastifyPluginAsync = async server => {
 	server.addHook("onRequest", async function (req, rep) {

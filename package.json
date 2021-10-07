@@ -46,14 +46,14 @@
     "dev": "nodemon",
     "build": "tsc -p ."
   },
-  "husky": {
-    "pre-commit": "lint-staged",
-    "pre-push": "yarn run test:ci"
-  },
   "lint-staged": {
     "src/**/*.{ts,js,json}": [
       "yarn run format",
       "yarn run lintfix"
     ]
+  },
+  "husky": {
+    "pre-commit": "lint-staged",
+    "pre-push": "yarn run test:ci"
   }
 }

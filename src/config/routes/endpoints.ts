@@ -12,10 +12,10 @@ const routesEndpoints = {
 	apiKeys: {
 		root: apiKeysRoot,
 		create: {
-			root: '/create',
-			global: `${apiKeysRoot}/create`
+			root: "/create",
+			global: `${apiKeysRoot}/create`,
 		},
-	}
+	},
 };
 
 export default routesEndpoints;
