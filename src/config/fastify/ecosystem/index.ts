@@ -10,6 +10,7 @@ const cookie: CookieSerializeOptions = {
 	sameSite: true,
 	secure: process.env.NODE_ENV === "production",
 	signed: true,
+	path: "/",
 };
 export const fastifyCookieOptions = {
 	names: {

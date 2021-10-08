@@ -10,6 +10,8 @@ import {
 import routesEndpoints from "../../config/routes/endpoints";
 import { createFastifyServer } from "../../tools/testing";
 import { prismaMock } from "../../tools/testing/prisma/singleton";
+import usersRoutes from "../users";
+import { OutgoingHttpHeaders } from "http2";
 
 describe("API Keys routes", () => {
 	let server: FastifyInstance;
@@ -20,11 +22,12 @@ describe("API Keys routes", () => {
 		const routeOptions = {
 			prefix: apiKeyRoot,
 		};
+		await server.register(fastifyJWT, fastifyJWTOptions.plugin);
 		await server.register(
 			fastifyCookie,
 			fastifyCookieOptions.plugin as FastifyCookieOptions,
 		);
-		await server.register(fastifyJWT, fastifyJWTOptions.plugin);
+		await server.register(usersRoutes, { prefix: routesEndpoints.auth.root });
 		await server.register(apiKeysRoutes, routeOptions);
 	});
 
@@ -77,14 +80,49 @@ describe("API Keys routes", () => {
 				...apiKeyData,
 				id: faker.datatype.number(),
 			};
+			const userData = {
+				email: faker.internet.email(),
+				password: faker.internet.password(6),
+				fullname: faker.name.findName(),
+				bio: faker.lorem.words(6),
+			};
+			const userCreateData = {
+				...userData,
+				id: faker.datatype.number(),
+				profile: {
+					role: "DEVELOPER",
+				},
+			};
+			let signInHeaders: OutgoingHttpHeaders;
 
-			beforeAll(() => {
+			beforeAll(async () => {
 				prismaMock.apiKeys.create.mockResolvedValue(apiKeyDataRow);
+				prismaMock.user.findUnique.mockResolvedValue(userCreateData);
 				server.prisma = prismaMock;
+				// get user jwt token an use it in 2nd request(line 109) to get permission
+				const { headers } = await server
+					.inject()
+					.post(routesEndpoints.auth.signin.global)
+					.payload(userData);
+				signInHeaders = {
+					cookie: (<string[]>headers?.["set-cookie"])?.[1],
+				};
+			});
+			test("should prohabit creating an API Key because user are not signed in", async () => {
+				const { statusCode, body } = await server
+					.inject()
+					.post(create.global)
+					.payload(apiKeyData);
+				const responseBody = JSON.parse(body);
+
+				expect(statusCode).toBe(401);
+				expect(responseBody).toHaveProperty("code", "unauthorized");
+				expect(responseBody).toHaveProperty("errors");
 			});
 			test("should create an api key and save it to the DB", async () => {
 				const { statusCode, body } = await server
 					.inject()
+					.headers(signInHeaders)
 					.post(create.global)
 					.payload(apiKeyData);
 				const responseBody = JSON.parse(body);
@@ -93,12 +131,12 @@ describe("API Keys routes", () => {
 				expect(responseBody).toHaveProperty("code", "success");
 				expect(responseBody).toHaveProperty("message");
 			});
-
 			test("should respond with errors in case the process of creating an api key failed", async () => {
 				prismaMock.apiKeys.create.mockRejectedValue(apiKeyData);
 				server.prisma = prismaMock;
 				const { statusCode, body } = await server
 					.inject()
+					.headers(signInHeaders)
 					.post(create.global)
 					.payload(apiKeyData);
 				const responseBody = JSON.parse(body);

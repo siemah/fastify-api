@@ -51,6 +51,9 @@ export const ResponseSchema = Type.Object({
 			success: Type.String({
 				pattern: "success",
 			}),
+			unauthorized: Type.String({
+				pattern: "unauthorized",
+			}),
 		}),
 	),
 	errors: Type.Optional(Type.Record(Type.String(), Type.String())),
