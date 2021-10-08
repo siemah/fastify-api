@@ -71,7 +71,7 @@ const usersRoutes: FastifyPluginAsync = async server => {
 			let jwtToken;
 
 			const userProfile = new UserProfile(server.prisma);
-			const res = await userProfile.getUser({ email: req.body.email });
+			const res = await userProfile.getSignInDetails({ email: req.body.email });
 
 			if (res?.code === "success" && res?.data !== null) {
 				if (req.body.password === res.data?.password) {
@@ -81,7 +81,10 @@ const usersRoutes: FastifyPluginAsync = async server => {
 						message: "Signin with success",
 					};
 					jwtToken = await rep.jwtSign(
-						{ id: res.data?.id },
+						{
+							id: res.data?.id,
+							role: res.data?.profile?.role,
+						},
 						fastifyJWTOptions.jwt.sign,
 					);
 					rep.setCookie(

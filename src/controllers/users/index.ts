@@ -62,13 +62,22 @@ export default class UserProfile {
 	 * @param data object with email/id of user
 	 * @returns http response schema of fetched user
 	 */
-	async getUser(data: Partial<User>): Promise<HTTPResponseU> {
+	async getSignInDetails(data: Partial<User>): Promise<HTTPResponseU> {
 		let response: HTTPResponse<any>;
 		let status = 200;
 
 		try {
 			const userData = await this.prisma.user.findUnique({
 				where: data,
+				select: {
+					id: true,
+					password: true,
+					profile: {
+						select: {
+							role: true,
+						},
+					},
+				},
 			});
 
 			response = {

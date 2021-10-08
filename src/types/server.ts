@@ -1,5 +1,5 @@
 interface HTTPResponseWithErrors {
-	code: "failed";
+	code: "failed" | "unauthorized";
 	errors?: any;
 }
 interface HTTPResponseWithData<T = Record<string, any>> {
