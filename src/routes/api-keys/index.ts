@@ -5,6 +5,7 @@ import {
 	ResponseSchemaWithErrors,
 	ResponseSchemaWithSuccessMessage,
 } from "../../config/schemas/shared";
+import ApiKey from "../../controllers/api-key";
 import { errorHandler } from "../../tools/fastify";
 import { TApiKeyCreateRoute } from "../../types/api-keys";
 
@@ -22,7 +23,13 @@ const apiKeysRoutes: FastifyPluginAsync = async server => {
 			errorHandler,
 		},
 		async (req, rep) => {
-			rep.send();
+			const apiKey = new ApiKey(server.prisma);
+			const { status, ...response } = await apiKey.createOneByUser(
+				req.body,
+				12,
+			);
+
+			rep.status(status).send(response);
 		},
 	);
 };
