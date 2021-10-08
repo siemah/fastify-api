@@ -45,7 +45,7 @@ model User {
 
 model ApiKeys {
   id          Int      @id @default(autoincrement())
-  key         String   @db.VarChar(256)
+  key         String   @unique @db.VarChar(256)
   title       String   @db.VarChar(100)
   description String   @db.VarChar(256) // describe the use case of this api keys
   domain      String   @db.VarChar(256)
