@@ -25,7 +25,7 @@ export async function checkDeveloperPermission(
 			});
 		}
 	} catch (error) {
-		throw HttpResponseError.getResponse(error as Error, {
+		throw HttpResponseError.getResponse(error, {
 			code: "unauthorized",
 			status: 401,
 			errors: {

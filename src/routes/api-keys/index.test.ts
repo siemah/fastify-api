@@ -99,7 +99,7 @@ describe("API Keys routes", () => {
 				prismaMock.apiKeys.create.mockResolvedValue(apiKeyDataRow);
 				prismaMock.user.findUnique.mockResolvedValue(userCreateData);
 				server.prisma = prismaMock;
-				// get user jwt token an use it in 2nd request(line 109) to get permission
+				// get user jwt token then use it in 2nd request(line 125) to get permission
 				const { headers } = await server
 					.inject()
 					.post(routesEndpoints.auth.signin.global)
@@ -145,6 +145,33 @@ describe("API Keys routes", () => {
 				expect(responseBody).toHaveProperty("code", "failed");
 				expect(responseBody).toHaveProperty("errors");
 				expect(responseBody?.errors).toHaveProperty("global");
+			});
+			test("should prevent user from creating an API Key because of his role", async () => {
+				prismaMock.user.findUnique.mockResolvedValue({
+					...userCreateData,
+					profile: {
+						role: "AUTHOR",
+					},
+				});
+				server.prisma = prismaMock;
+				// get user jwt token an use it in 2nd request(line 167) to get permission
+				const { headers } = await server
+					.inject()
+					.post(routesEndpoints.auth.signin.global)
+					.payload(userData);
+				signInHeaders = {
+					cookie: (<string[]>headers?.["set-cookie"])?.[1],
+				};
+				const { statusCode, body } = await server
+					.inject()
+					.headers(signInHeaders)
+					.post(create.global)
+					.payload(apiKeyData);
+				const responseBody = JSON.parse(body);
+
+				expect(statusCode).toBe(401);
+				expect(responseBody).toHaveProperty("code", "unauthorized");
+				expect(responseBody).toHaveProperty("errors");
 			});
 		});
 	});
