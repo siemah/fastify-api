@@ -60,11 +60,11 @@ export default class HttpResponseError extends Error {
 	 * @param error thrown error
 	 * @returns {HTTPResponse}
 	 */
-	static getResponse(
-		error: Error | HttpResponseError,
+	static getResponse<T = Error>(
+		error: T,
 		defaultResponse?: HTTPErrorResponseT,
 	): HTTPErrorResponseT {
-		const response: HTTPResponse & { status: number } = {
+		const response: HTTPErrorResponseT = {
 			code: defaultResponse?.code || "failed",
 			status: defaultResponse?.status || 400,
 		};
