@@ -8,6 +8,10 @@ const routesEndpoints = {
 			root: "/signin",
 			global: `${authRoot}/signin`,
 		},
+		signout: {
+			root: "/signout",
+			global: `${authRoot}/signout`,
+		},
 	},
 	apiKeys: {
 		root: apiKeysRoot,

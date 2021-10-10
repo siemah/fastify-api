@@ -13,7 +13,12 @@ import {
 
 describe("Users routes:", () => {
 	let server: FastifyInstance;
-	const { signup, signin, root: authRootEndpoint } = routesEndpoints.auth;
+	const {
+		signup,
+		signin,
+		signout,
+		root: authRootEndpoint,
+	} = routesEndpoints.auth;
 	const userData = {
 		email: faker.internet.email(),
 		password: faker.internet.password(6),
@@ -232,6 +237,15 @@ describe("Users routes:", () => {
 					global: "You're already signed in",
 				});
 			});
+		});
+	});
+
+	describe("User signout", () => {
+		test("should signout with success", async () => {
+			const { statusCode, body } = await server.inject().get(signout.global);
+
+			expect(statusCode).toBe(200);
+			expect(body).toBe("");
 		});
 	});
 });
