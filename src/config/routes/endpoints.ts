@@ -1,5 +1,6 @@
 const authRoot = "/api/auth";
 const apiKeysRoot = "/api/keys";
+const postsRoot = "/api/posts";
 const routesEndpoints = {
 	auth: {
 		root: authRoot,
@@ -18,6 +19,13 @@ const routesEndpoints = {
 		create: {
 			root: "/create",
 			global: `${apiKeysRoot}/create`,
+		},
+	},
+	posts: {
+		root: postsRoot,
+		create: {
+			root: "/create",
+			global: `${postsRoot}/create`,
 		},
 	},
 };

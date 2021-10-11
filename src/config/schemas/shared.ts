@@ -24,6 +24,9 @@ export const ResponseSchemaWithData = Type.Object({
 			success: Type.String({
 				pattern: "success",
 			}),
+			unauthorized: Type.String({
+				pattern: "unauthorized",
+			}),
 		}),
 	),
 });
@@ -40,6 +43,7 @@ export const ResponseSchemaWithSuccessMessage = Type.Object({
 		}),
 	),
 	message: Type.Optional(Type.String()),
+	data: Type.Optional(Type.Record(Type.String(), Type.Any())),
 });
 
 export const ResponseSchema = Type.Object({
