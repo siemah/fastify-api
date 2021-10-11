@@ -55,6 +55,50 @@ class Post {
 
 		return response;
 	}
+
+	/**
+	 * Edit post by author
+	 * @param post article details to update
+	 * @param id author id
+	 * @returns response contain http status and success/error messages
+	 */
+	async editOneById(
+		post: Pick<PostType, "title" | "published" | "content">,
+		id: number,
+	): Promise<HTTPResponseI> {
+		let response: HTTPResponseI;
+
+		try {
+			await this.prisma.post.update({
+				data: {
+					title: post.title,
+					content: post.content,
+					published: post.published,
+				},
+				where: {
+					id,
+				},
+				select: {
+					id: true,
+				},
+			});
+			response = {
+				code: "success",
+				status: 200,
+				message: `Post "${post.title}" updated successfully`,
+			};
+		} catch (error) {
+			response = {
+				status: 400,
+				code: "failed",
+				errors: {
+					global: "Something went wrong, please try again",
+				},
+			};
+		}
+
+		return response;
+	}
 }
 
 export default Post;
