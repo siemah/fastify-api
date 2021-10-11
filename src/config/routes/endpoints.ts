@@ -27,6 +27,9 @@ const routesEndpoints = {
 			root: "/create",
 			global: `${postsRoot}/create`,
 		},
+		edit: {
+			root: "/:id/edit",
+		},
 	},
 };
 
