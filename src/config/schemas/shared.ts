@@ -29,6 +29,8 @@ export const ResponseSchemaWithData = Type.Object({
 			}),
 		}),
 	),
+	data: Type.Optional(Type.Record(Type.String(), Type.Any())),
+	message: Type.Optional(Type.String()),
 });
 
 export const ResponseSchemaWithSuccessMessage = Type.Object({
@@ -43,7 +45,6 @@ export const ResponseSchemaWithSuccessMessage = Type.Object({
 		}),
 	),
 	message: Type.Optional(Type.String()),
-	data: Type.Optional(Type.Record(Type.String(), Type.Any())),
 });
 
 export const ResponseSchema = Type.Object({
