@@ -35,3 +35,13 @@ export const CreatePostBodySchema = Type.Object(
 		},
 	},
 );
+
+export const EditPostParamsSchema = Type.Object(
+	{
+		id: Type.Number(),
+	},
+	{
+		additionalProperties: false,
+		errorMessage: "Post not found, please check again",
+	},
+);
