@@ -51,7 +51,6 @@ export function checkPostOwnership<R = any>(
 				? Pick<TEditPostRoute, "Params">
 				: any
 		>,
-		rep: FastifyReply,
 	): Promise<void> => {
 		const { id: userId } = <Pick<User, "id">>req.user;
 

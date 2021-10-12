@@ -79,6 +79,37 @@ const postsRoutes: FastifyPluginCallback = async server => {
 				rep.status(status).send(response);
 			},
 		);
+		server.delete<Pick<TEditPostRoute, "Params">>(
+			routesEndpoints.posts.delete.root,
+			{
+				onRequest: server.auth(
+					[
+						checkUserRole("AUTHOR"),
+						checkPostOwnership({
+							prisma: server.prisma,
+							requestProp: "params",
+						}),
+					],
+					{
+						relation: "and",
+					},
+				),
+				schema: {
+					response: {
+						"2xx": ResponseSchemaWithSuccessMessage,
+						"4xx": ResponseSchemaWithErrors,
+					},
+					params: EditPostParamsSchema,
+				},
+				errorHandler,
+			},
+			async (req, rep) => {
+				const post = new Post(server.prisma);
+				const { status, ...response } = await post.removeOneById(req.params.id);
+
+				rep.status(status).send(response);
+			},
+		);
 	});
 };
 

@@ -30,6 +30,9 @@ const routesEndpoints = {
 		edit: {
 			root: "/:id/edit",
 		},
+		delete: {
+			root: "/:id/delete",
+		},
 	},
 };
 
