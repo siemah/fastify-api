@@ -1,4 +1,5 @@
 import { PrismaClient, Post as PostType } from ".prisma/client";
+import HttpResponseError from "../../tools/error";
 import { HTTPResponseI } from "../../types/shared";
 
 class Post {
@@ -95,6 +96,43 @@ class Post {
 					global: "Something went wrong, please try again",
 				},
 			};
+		}
+
+		return response;
+	}
+
+	/**
+	 * Delete an article by id an
+	 * @param id article id
+	 * @param authorId article author(owner)
+	 * @returns response containing status,code and success/error messages
+	 */
+	async removeOneById(id: number): Promise<HTTPResponseI> {
+		let response: HTTPResponseI;
+
+		try {
+			const results = await this.prisma.post.delete({
+				where: {
+					id,
+				},
+			});
+			if (!!results.id === true) {
+				response = {
+					status: 200,
+					code: "success",
+					message: `"${results.title}" deleted successfully`,
+				};
+			} else {
+				throw new HttpResponseError({
+					status: 401,
+					code: "unauthorized",
+					errors: {
+						global: "You're not authorized to delete this resource",
+					},
+				});
+			}
+		} catch (error) {
+			response = HttpResponseError.getResponse(error);
 		}
 
 		return response;
