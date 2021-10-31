@@ -137,6 +137,49 @@ class Post {
 
 		return response;
 	}
+
+	/**
+	 * Find post by id
+	 * @param id post primary key(unique id)
+	 * @returns returning response schema with status, code, data/error
+	 */
+	async getOneById(id: number): Promise<HTTPResponseI> {
+		let response: HTTPResponseI;
+
+		try {
+			const data = await this.prisma.post.findUnique({
+				where: {
+					id,
+				},
+				select: {
+					id: true,
+					title: true,
+					content: true,
+					createdAt: true,
+					published: true,
+				},
+			});
+			if (data !== null) {
+				response = {
+					status: 200,
+					code: "success",
+					data,
+				};
+			} else {
+				throw new HttpResponseError({
+					status: 404,
+					code: "not_found",
+					errors: {
+						global: "This post dosn't exists",
+					},
+				});
+			}
+		} catch (error) {
+			response = HttpResponseError.getResponse(error);
+		}
+
+		return response;
+	}
 }
 
 export default Post;
