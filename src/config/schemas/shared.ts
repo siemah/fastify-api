@@ -9,6 +9,9 @@ export const ResponseSchemaWithErrors = Type.Object({
 			success: Type.String({
 				pattern: "success",
 			}),
+			not_found: Type.String({
+				pattern: "not_found",
+			}),
 		}),
 	),
 	errors: Type.Optional(Type.Record(Type.String(), Type.String())),
@@ -27,6 +30,9 @@ export const ResponseSchemaWithData = Type.Object({
 			unauthorized: Type.String({
 				pattern: "unauthorized",
 			}),
+			not_found: Type.String({
+				pattern: "not_found",
+			}),
 		}),
 	),
 	data: Type.Optional(Type.Record(Type.String(), Type.Any())),
@@ -41,6 +47,9 @@ export const ResponseSchemaWithSuccessMessage = Type.Object({
 			}),
 			success: Type.String({
 				pattern: "success",
+			}),
+			not_found: Type.String({
+				pattern: "not_found",
 			}),
 		}),
 	),
@@ -58,6 +67,9 @@ export const ResponseSchema = Type.Object({
 			}),
 			unauthorized: Type.String({
 				pattern: "unauthorized",
+			}),
+			not_found: Type.String({
+				pattern: "not_found",
 			}),
 		}),
 	),

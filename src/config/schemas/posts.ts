@@ -45,3 +45,23 @@ export const EditPostParamsSchema = Type.Object(
 		errorMessage: "Post not found, please check again",
 	},
 );
+
+export const IdParamsSchema = Type.Object(
+	{
+		id: Type.Number({
+			minimum: 1,
+			errorMessage: {
+				_: "Please enter a valid \"id\"",
+			},
+		}),
+	},
+	{
+		additionalProperties: false,
+		errorMessage: {
+			_: "Please enter all required details",
+			required: {
+				id: "Please enter a valid \"id\"",
+			},
+		},
+	},
+);
