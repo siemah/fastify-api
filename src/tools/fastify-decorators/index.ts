@@ -1,9 +1,12 @@
-import { FastifyReply, FastifyRequest } from "fastify";
-import { User } from ".prisma/client";
+import { FastifyRequest } from "fastify";
+import { PrismaClient, User } from ".prisma/client";
 import { fastifyJWTOptions } from "../../config/fastify/ecosystem";
 import { TEditPostRoute } from "../../types/posts";
 import HttpResponseError from "../error";
-import { CheckPostOwnershipOptionsT } from "../../types/server";
+import {
+	ApiKeyValidationOptions,
+	CheckPostOwnershipOptionsT,
+} from "../../types/server";
 
 /**
  * Check if the user signed in with "developer" role
@@ -52,10 +55,9 @@ export function checkPostOwnership<R = any>(
 				: any
 		>,
 	): Promise<void> => {
-		const { id: userId } = <Pick<User, "id">>req.user;
-
 		try {
-			const results = await options.prisma.post.findFirst({
+			const { id: userId } = <Pick<User, "id">>req.user;
+			const results = await options.db.post.findFirst({
 				where: {
 					authorId: userId,
 					id: Number(req?.[options.requestProp].id),
@@ -75,11 +77,47 @@ export function checkPostOwnership<R = any>(
 				});
 			}
 		} catch (error) {
+			console.log("checkownership", error);
 			throw HttpResponseError.getResponse(error, {
 				code: "unauthorized",
 				status: 401,
 				errors: {
 					global: "Please signin first then try again",
+				},
+			});
+		}
+	};
+}
+
+/**
+ * Validate user API Key
+ * @param db instance and header name of the api key
+ * @returns hook used with fastify-auth
+ */
+export function apiKeyValidation({
+	db,
+	headerName = "x-api-key",
+}: ApiKeyValidationOptions) {
+	return async function (req: FastifyRequest): Promise<void> {
+		try {
+			const apiKey = String(req.headers[headerName]);
+			const result = await db.apiKeys.findUnique({
+				where: {
+					key: apiKey,
+				},
+				select: {
+					domain: true,
+				},
+			});
+			if (result === null) {
+				throw new Error("unauthorized");
+			}
+		} catch (error) {
+			throw HttpResponseError.getResponse(error, {
+				code: "unauthorized",
+				status: 401,
+				errors: {
+					global: "You're not authorized to reach this resource",
 				},
 			});
 		}

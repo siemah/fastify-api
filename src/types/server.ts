@@ -1,7 +1,7 @@
 import { PrismaClient } from ".prisma/client";
 
 interface HTTPResponseWithErrors {
-	code: "failed" | "unauthorized";
+	code: "failed" | "unauthorized" | "not_found";
 	errors?: any;
 }
 interface HTTPResponseWithData<T = Record<string, any>> {
@@ -15,6 +15,11 @@ export type HTTPResponse<T = void> = T extends void
 	: HTTPResponseWithData<T>;
 
 export interface CheckPostOwnershipOptionsT {
-	prisma: PrismaClient;
+	db: PrismaClient;
 	requestProp: "params";
+}
+
+export interface ApiKeyValidationOptions {
+	db: PrismaClient;
+	headerName?: string;
 }

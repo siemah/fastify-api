@@ -31,3 +31,16 @@ export async function checkSignInState(
 		rep.clearCookie(fastifyCookieOptions.names.auth);
 	}
 }
+
+/**
+ * extract signed in user data from JWT to req.user
+ * @param req FastifyRequest
+ * @see https://github.com/fastify/fastify-jwt/
+ */
+export async function extractUserFromJwt(req: FastifyRequest): Promise<void> {
+	try {
+		await req.jwtVerify();
+	} catch (error) {
+		true;
+	}
+}
