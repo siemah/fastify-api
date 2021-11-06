@@ -33,6 +33,9 @@ const routesEndpoints = {
 		delete: {
 			root: "/:id/delete",
 		},
+		list: {
+			one: "/:id",
+		},
 	},
 };
 
