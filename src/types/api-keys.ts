@@ -9,3 +9,7 @@ export type TApiKeyCreateRoute = {
 	Body: TApiKeyCreateS;
 	Reply: TApiKeyCreateResponseS;
 };
+
+export type TApiKeyGetRoute = {
+	Reply: TApiKeyCreateResponseS;
+};

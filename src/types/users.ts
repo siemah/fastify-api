@@ -1,12 +1,9 @@
 import { Static } from "@sinclair/typebox";
-import {
-	SignUpSchema,
-	SignUpResponse,
-	SignInSchema,
-} from "../config/schemas/users";
+import { ResponseSchema } from "../config/schemas/shared";
+import { SignUpSchema, SignInSchema } from "../config/schemas/users";
 
 type TSignUpS = Static<typeof SignUpSchema>;
-type THttpResponse = Static<typeof SignUpResponse>;
+type THttpResponse = Static<typeof ResponseSchema>;
 
 type TSignInS = Static<typeof SignInSchema>;
 
