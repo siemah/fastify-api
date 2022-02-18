@@ -58,6 +58,47 @@ export default class ApiKey {
 	}
 
 	/**
+	 * Get all api keys beloging to a given user
+	 * @param userId userID
+	 * @returns response schema containing data or errors
+	 */
+	async findAllByUser(userId: number): Promise<HTTPResponseI> {
+		let response: HTTPResponseI;
+
+		try {
+			const keys = await this.prisma.apiKeys.findMany({
+				where: {
+					userId,
+				},
+				select: {
+					key: true,
+					title: true,
+					domain: true,
+					description: true,
+					createdAt: true,
+				},
+			});
+			response = {
+				code: "success",
+				status: 200,
+				data: {
+					keys,
+				},
+			};
+		} catch (error) {
+			response = {
+				code: "failed",
+				status: 400,
+				errors: {
+					global: "something went wrong, please try again",
+				},
+			};
+		}
+
+		return response;
+	}
+
+	/**
 	 * Create an api key
 	 * @param data the data to be hashed
 	 * @returns the hashed value
