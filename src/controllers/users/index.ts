@@ -99,4 +99,48 @@ export default class UserProfile {
 			...response,
 		};
 	}
+
+	/**
+	 * Get user details by id
+	 * @param id user ID
+	 */
+	async findOneById(id: number) {
+		let response: HTTPResponse<any>;
+		let status = 200;
+
+		try {
+			const userData = await this.prisma.user.findUnique({
+				where: {
+					id,
+				},
+				select: {
+					email: true,
+					fullname: true,
+					profile: {
+						select: {
+							bio: true,
+						},
+					},
+				},
+			});
+
+			response = {
+				code: "success",
+				data: userData,
+			};
+		} catch (error) {
+			status = 400;
+			response = {
+				code: "failed",
+				errors: {
+					global: "Please try again!",
+				},
+			};
+		}
+
+		return {
+			status,
+			...response,
+		};
+	}
 }
