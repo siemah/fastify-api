@@ -11,10 +11,12 @@ import {
 	fastifyJWTOptions,
 } from "../../config/fastify/ecosystem";
 import {
+	ResponseSchemaWithData,
 	ResponseSchemaWithErrors,
 	ResponseSchemaWithSuccessMessage,
 } from "../../config/schemas/shared";
 import { checkSignInState } from "../../tools/hooks/auth";
+import { HTTPResponseI } from "../../types/shared";
 
 const usersRoutes: FastifyPluginAsync = async server => {
 	server.register(fastifyAuth).after(() => {
@@ -106,6 +108,39 @@ const usersRoutes: FastifyPluginAsync = async server => {
 				}
 
 				rep.status(status).send(response);
+			},
+		);
+		server.get(
+			routesEndpoints.auth.check.root,
+			{
+				schema: {
+					response: {
+						"4xx": ResponseSchemaWithErrors,
+						200: ResponseSchemaWithData,
+					},
+				},
+				errorHandler,
+			},
+			async (req, rep) => {
+				let response: HTTPResponseI;
+				try {
+					const { id } = await req.jwtVerify(fastifyJWTOptions.jwt.verify);
+					const userProfile = new UserProfile(server.prisma);
+
+					if (id) {
+						response = await userProfile.findOneById(id);
+					} else {
+						throw new Error("not_found");
+					}
+				} catch (error) {
+					response = {
+						status: 400,
+						code: "not_found",
+					};
+				}
+				const { status, ...json } = response;
+
+				rep.status(status).send(json);
 			},
 		);
 	});

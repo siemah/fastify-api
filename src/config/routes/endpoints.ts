@@ -13,12 +13,19 @@ const routesEndpoints = {
 			root: "/signout",
 			global: `${authRoot}/signout`,
 		},
+		check: {
+			root: "/check",
+		},
 	},
 	apiKeys: {
 		root: apiKeysRoot,
 		create: {
 			root: "/create",
 			global: `${apiKeysRoot}/create`,
+		},
+		list: {
+			root: "/list",
+			global: `${apiKeysRoot}/list`,
 		},
 	},
 	posts: {
