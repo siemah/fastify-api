@@ -46,7 +46,10 @@
     "lintfix": "eslint src/ --fix --cache",
     "format": "prettier --write src",
     "dev": "nodemon",
-    "build": "tsc -p ."
+    "build:db" : "cp -r prisma ./dist",
+    "copy:files": "cp package.json ./dist",
+    "build": "tsc -p . && yarn build:db && yarn copy:files",
+    "start": "node dist/server.js"
   },
   "lint-staged": {
     "src/**/*.{ts,js,json}": [
