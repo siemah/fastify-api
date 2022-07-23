@@ -1,3 +1,4 @@
+import { User } from "@prisma/client";
 import { FastifyPluginAsync } from "fastify";
 import fastifyAuth from "fastify-auth";
 import routesEndpoints from "../../config/routes/endpoints";
@@ -61,9 +62,8 @@ const apiKeysRoutes: FastifyPluginAsync = async server => {
 			async (req, rep) => {
 				const apiKey = new ApiKey(server.prisma);
 				const { status, ...response } = await apiKey.findAllByUser(
-					(<any>req.user)?.id,
+					(<Pick<User, "id" | "email">>req.user).id,
 				);
-				console.log(response);
 				rep
 					.status(status)
 					.header("Content-Type", "application/json")
